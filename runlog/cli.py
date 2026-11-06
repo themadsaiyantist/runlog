@@ -13,6 +13,7 @@ from .report import format_row, format_run, markdown_summary, summary, top_runs
 
 DEFAULT_DATA = "runs.csv"
 SINCE_HELP = "keep only the runs from DATE on, DATE included, written YYYY-MM-DD"
+MODEL_HELP = "keep only the runs of model NAME"
 
 
 def parse_since(text: str) -> str:
@@ -30,6 +31,15 @@ def runs_since(runs: list[Run], since: str) -> list[Run]:
     kept = [run for run in runs if run.date >= since]
     if not kept:
         raise ValueError(f"no runs on or after {since}")
+    return kept
+
+
+def runs_of_model(runs: list[Run], model: str) -> list[Run]:
+    """The runs of this model, in file order, the name lowercased first. Raises ValueError when none are left."""
+    name = model.lower()
+    kept = [run for run in runs if run.model == name]
+    if not kept:
+        raise ValueError(f"no runs of model {name!r}")
     return kept
 
 
@@ -52,9 +62,11 @@ def build_parser() -> argparse.ArgumentParser:
     best = commands.add_parser("best", help="print the run with the highest validation accuracy")
     best.add_argument("--top", type=int, default=1, metavar="N", help="print the N best runs, highest first")
     best.add_argument("--since", metavar="DATE", help=SINCE_HELP)
+    best.add_argument("--model", metavar="NAME", help=MODEL_HELP)
     report = commands.add_parser("report", help="print a summary of every run")
     report.add_argument("--format", choices=["text", "md"], default="text", help="print the report as text or as Markdown")
     report.add_argument("--since", metavar="DATE", help=SINCE_HELP)
+    report.add_argument("--model", metavar="NAME", help=MODEL_HELP)
     show = commands.add_parser("show", help="print one run in full, one column per line")
     show.add_argument("run_id", metavar="RUN_ID", help="the id of the run to print")
     return parser
@@ -69,6 +81,8 @@ def main(argv: list[str] | None = None) -> int:
             runs = load_runs(args.data)
             if args.since is not None:
                 runs = runs_since(runs, parse_since(args.since))
+            if args.model is not None:
+                runs = runs_of_model(runs, args.model)
             if args.command == "best":
                 ranked = top_runs(runs, args.top)
             else:

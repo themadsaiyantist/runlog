@@ -1,0 +1,8 @@
+[sweep]
+name = "resnet-lr-epochs"
+seed = 42
+
+[grid]
+model = ["resnet18", "resnet50"]
+learning_rate = [0.01, 0.001, 0.0001]
+epochs = [5, 10]

@@ -43,6 +43,14 @@ def runs_of_model(runs: list[Run], model: str) -> list[Run]:
     return kept
 
 
+def runs_with_min_epochs(runs: list[Run], min_epochs: int) -> list[Run]:
+    """The runs with at least min_epochs epochs, in file order. Raises ValueError when none are left."""
+    kept = [run for run in runs if run.epochs >= min_epochs]
+    if not kept:
+        raise ValueError(f"no runs with at least {min_epochs} epochs")
+    return kept
+
+
 def find_row(path: str, run_id: str) -> dict[str, str]:
     """The first row of the CSV at path with this run_id, every column as written, in file order.
 
@@ -63,6 +71,7 @@ def build_parser() -> argparse.ArgumentParser:
     best.add_argument("--top", type=int, default=1, metavar="N", help="print the N best runs, highest first")
     best.add_argument("--since", metavar="DATE", help=SINCE_HELP)
     best.add_argument("--model", metavar="NAME", help=MODEL_HELP)
+    best.add_argument("--min-epochs", type=int, metavar="N", help="keep only the runs with at least N epochs")
     report = commands.add_parser("report", help="print a summary of every run")
     report.add_argument("--format", choices=["text", "md"], default="text", help="print the report as text or as Markdown")
     report.add_argument("--since", metavar="DATE", help=SINCE_HELP)
@@ -84,6 +93,8 @@ def main(argv: list[str] | None = None) -> int:
             if args.model is not None:
                 runs = runs_of_model(runs, args.model)
             if args.command == "best":
+                if args.min_epochs is not None:
+                    runs = runs_with_min_epochs(runs, args.min_epochs)
                 ranked = top_runs(runs, args.top)
             else:
                 text = markdown_summary(runs) if args.format == "md" else summary(runs)

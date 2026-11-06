@@ -25,6 +25,7 @@ uv pip install --python .venv/bin/python pytest
 - `best --top N` prints the N best runs, highest first, instead of only the best one.
 - `report --format md` prints the report as Markdown instead of text.
 - `--model NAME`, on `best` and `report`, keeps only the runs of that model. The name is lowercased first, so `ResNet18` finds `resnet18`. A model with no runs left ends the command with an error.
+- `best --min-epochs N` keeps only the runs with at least N epochs. If no run has that many, the command ends with an error.
 
 ## How the project works
 
@@ -35,3 +36,4 @@ uv pip install --python .venv/bin/python pytest
 - Model names are lowercase, as the exports write them.
 - `logs/` is gitignored, and `scripts/make_log.py` writes a sample log into it.
 - `legacy/` is the code before the rewrite, kept until every reader of it is gone. Nothing new imports it.
+- `tools/hooks/` holds the project's hooks.

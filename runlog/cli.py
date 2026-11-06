@@ -1,4 +1,4 @@
-"""The command line: 'python -m runlog best', 'python -m runlog report' and 'python -m runlog show'."""
+"""The command line: 'python -m runlog best', 'python -m runlog report', 'python -m runlog show' and 'python -m runlog models'."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ import sys
 from datetime import date
 
 from .data import Run, load_runs
-from .report import format_row, format_run, markdown_summary, summary, top_runs
+from .report import format_models, format_row, format_run, markdown_summary, summary, top_runs
 
 DEFAULT_DATA = "runs.csv"
 SINCE_HELP = "keep only the runs from DATE on, DATE included, written YYYY-MM-DD"
@@ -78,6 +78,7 @@ def build_parser() -> argparse.ArgumentParser:
     report.add_argument("--model", metavar="NAME", help=MODEL_HELP)
     show = commands.add_parser("show", help="print one run in full, one column per line")
     show.add_argument("run_id", metavar="RUN_ID", help="the id of the run to print")
+    commands.add_parser("models", help="print every model and its number of runs, sorted by name")
     return parser
 
 
@@ -86,6 +87,11 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.command == "show":
             row = find_row(args.data, args.run_id)
+        elif args.command == "models":
+            runs = load_runs(args.data)
+            if not runs:
+                raise ValueError(f"no runs in {args.data}")
+            text = format_models(runs)
         else:
             runs = load_runs(args.data)
             if args.since is not None:

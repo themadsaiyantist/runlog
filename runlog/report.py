@@ -42,6 +42,19 @@ def mean_accuracy_by_model(runs: list[Run]) -> dict[str, float]:
     return {model: sum(values) / len(values) for model, values in sorted(totals.items())}
 
 
+def runs_by_model(runs: list[Run]) -> dict[str, int]:
+    """The number of runs of every model, by model name, sorted by name."""
+    counts: dict[str, int] = defaultdict(int)
+    for run in runs:
+        counts[run.model] += 1
+    return dict(sorted(counts.items()))
+
+
+def format_models(runs: list[Run]) -> str:
+    """One line per model, its name and its number of runs, sorted by name."""
+    return "\n".join(f"{model:<12} {count}" for model, count in runs_by_model(runs).items())
+
+
 def format_run(run: Run) -> str:
     """One run on one line."""
     return (

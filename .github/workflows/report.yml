@@ -1,0 +1,31 @@
+name: Weekly run report
+
+on:
+  schedule:
+    - cron: "0 8 * * 1"
+  workflow_dispatch:
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v6
+      - name: Make the virtual environment
+        run: |
+          uv venv --python 3.12 .venv
+          uv pip install --python .venv/bin/python pytest
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          prompt: "/report"
+          claude_args: |
+            --model claude-opus-5-5
+            --allowedTools "Bash(.venv/bin/python *),Edit(/reports/**)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: run-report
+          path: reports/

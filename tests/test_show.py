@@ -48,3 +48,10 @@ def test_show_prints_a_good_run_when_another_row_does_not_parse(tmp_path, capsys
     assert capsys.readouterr().out.splitlines()[0] == "run_id: r001"
     assert main(["--data", str(path), "show", "r002"]) == 0
     assert capsys.readouterr().out.splitlines()[-1] == "val_loss: "
+
+
+def test_show_fails_cleanly_on_a_missing_file(tmp_path, capsys):
+    assert main(["--data", str(tmp_path / "nope.csv"), "show", "r001"]) == 1
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert captured.err.startswith("runlog: ")

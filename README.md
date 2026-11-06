@@ -11,10 +11,20 @@ uv pip install --python .venv/bin/python pytest
 .venv/bin/python -m runlog report
 .venv/bin/python -m runlog best --since 2026-08-15
 .venv/bin/python -m runlog report --since 2026-08-15
+.venv/bin/python -m runlog show r001
+.venv/bin/python -m runlog best --top 5
+.venv/bin/python -m runlog report --format md
+.venv/bin/python -m runlog best --model bert-base
 .venv/bin/python -m pytest
 ```
 
 `best` prints the run with the highest validation accuracy. `report` prints how many runs there are, the best one, and the mean accuracy of every model. Both take `--data PATH` to read another file instead of `runs.csv`, and `--since DATE`, written YYYY-MM-DD, to keep only the runs from DATE on, DATE included. A DATE in another form, or one after the last run, ends the command with an error.
+
+`show RUN_ID` prints one run in full, one column per line, as the CSV writes it, and takes `--data PATH` too. An id that is not in the file ends the command with an error.
+
+- `best --top N` prints the N best runs, highest first, instead of only the best one.
+- `report --format md` prints the report as Markdown instead of text.
+- `--model NAME`, on `best` and `report`, keeps only the runs of that model. The name is lowercased first, so `ResNet18` finds `resnet18`. A model with no runs left ends the command with an error.
 
 ## How the project works
 

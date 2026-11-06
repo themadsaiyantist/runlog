@@ -9,10 +9,12 @@ uv venv --python 3.12 .venv
 uv pip install --python .venv/bin/python pytest
 .venv/bin/python -m runlog best
 .venv/bin/python -m runlog report
+.venv/bin/python -m runlog best --since 2026-08-15
+.venv/bin/python -m runlog report --since 2026-08-15
 .venv/bin/python -m pytest
 ```
 
-`best` prints the run with the highest validation accuracy. `report` prints how many runs there are, the best one, and the mean accuracy of every model. Both take `--data PATH` to read another file instead of `runs.csv`.
+`best` prints the run with the highest validation accuracy. `report` prints how many runs there are, the best one, and the mean accuracy of every model. Both take `--data PATH` to read another file instead of `runs.csv`, and `--since DATE`, written YYYY-MM-DD, to keep only the runs from DATE on, DATE included. A DATE in another form, or one after the last run, ends the command with an error.
 
 ## How the project works
 

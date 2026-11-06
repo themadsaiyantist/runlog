@@ -7,20 +7,31 @@ from collections import defaultdict
 from .data import Run
 
 
+def _rank_key(run: Run) -> tuple[float, float, str]:
+    """Higher accuracy first, then lower loss, then the earlier date."""
+    return (-run.val_accuracy, run.val_loss, run.date)
+
+
 def best_run(runs: list[Run]) -> Run:
-    """The run with the highest validation accuracy. The first one in file order wins a tie."""
+    """The run with the highest validation accuracy.
+
+    On a tie the lower validation loss wins, then the earlier date, then the first one in file order.
+    """
     if not runs:
         raise ValueError("no runs to choose from")
-    return max(runs, key=lambda run: run.val_accuracy)
+    return min(runs, key=_rank_key)
 
 
 def top_runs(runs: list[Run], count: int) -> list[Run]:
-    """The count runs with the highest validation accuracy, highest first. File order breaks a tie."""
+    """The count runs with the highest validation accuracy, highest first.
+
+    Ties rank the same way as in best_run: lower loss, then earlier date, then file order.
+    """
     if count < 1:
         raise ValueError("--top needs a count of at least 1")
     if not runs:
         raise ValueError("no runs to choose from")
-    return sorted(runs, key=lambda run: run.val_accuracy, reverse=True)[:count]
+    return sorted(runs, key=_rank_key)[:count]
 
 
 def mean_accuracy_by_model(runs: list[Run]) -> dict[str, float]:

@@ -2,36 +2,49 @@
 
 from __future__ import annotations
 
+import math
 from collections import defaultdict
 
 from .data import Run
 
 
 def _rank_key(run: Run) -> tuple[float, float, str]:
-    """Higher accuracy first, then lower loss, then the earlier date."""
-    return (-run.val_accuracy, run.val_loss, run.date)
+    """Higher accuracy first, then lower loss (a NaN loss last), then the earlier date."""
+    loss = math.inf if math.isnan(run.val_loss) else run.val_loss
+    return (-run.val_accuracy, loss, run.date)
+
+
+def _rankable(runs: list[Run]) -> list[Run]:
+    """The runs with a number for accuracy, in file order: a NaN accuracy is never ranked.
+
+    Raises ValueError when none are left.
+    """
+    if not runs:
+        raise ValueError("no runs to choose from")
+    kept = [run for run in runs if not math.isnan(run.val_accuracy)]
+    if not kept:
+        raise ValueError("no runs with a validation accuracy to choose from, every one is NaN")
+    return kept
 
 
 def best_run(runs: list[Run]) -> Run:
     """The run with the highest validation accuracy.
 
     On a tie the lower validation loss wins, then the earlier date, then the first one in file order.
+    A run whose accuracy is NaN is never chosen.
     """
-    if not runs:
-        raise ValueError("no runs to choose from")
-    return min(runs, key=_rank_key)
+    return min(_rankable(runs), key=_rank_key)
 
 
 def top_runs(runs: list[Run], count: int) -> list[Run]:
     """The count runs with the highest validation accuracy, highest first.
 
     Ties rank the same way as in best_run: lower loss, then earlier date, then file order.
+    Runs whose accuracy is NaN are left out.
     """
     if count < 1:
         raise ValueError("--top needs a count of at least 1")
-    if not runs:
-        raise ValueError("no runs to choose from")
-    return sorted(runs, key=_rank_key)[:count]
+    return sorted(_rankable(runs), key=_rank_key)[:count]
 
 
 def mean_accuracy_by_model(runs: list[Run]) -> dict[str, float]:

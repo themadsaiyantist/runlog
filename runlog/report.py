@@ -50,6 +50,11 @@ def format_run(run: Run) -> str:
     )
 
 
+def format_row(row: dict[str, str]) -> str:
+    """One run in full: every column on its own line as 'name: value', in the order given."""
+    return "\n".join(f"{name}: {value}" for name, value in row.items())
+
+
 def summary(runs: list[Run]) -> str:
     """The report: the count, the best run, and the mean accuracy of every model."""
     lines = [f"runs: {len(runs)}", f"best: {format_run(best_run(runs))}", "mean accuracy by model:"]

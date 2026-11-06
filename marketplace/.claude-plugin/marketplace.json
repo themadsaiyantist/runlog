@@ -1,0 +1,14 @@
+{
+  "name": "runlog-plugins",
+  "description": "goku's plugins for Claude Code",
+  "owner": {
+    "name": "goku"
+  },
+  "plugins": [
+    {
+      "name": "runlog-harness",
+      "source": "./plugins/runlog-harness",
+      "description": "The runlog harness: a report skill, a reviewer and a test-writer, test-gating hooks, a review workflow and a fetch server"
+    }
+  ]
+}

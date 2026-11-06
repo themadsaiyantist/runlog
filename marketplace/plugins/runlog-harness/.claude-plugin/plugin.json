@@ -1,0 +1,6 @@
+{
+  "name": "runlog-harness",
+  "version": "0.1.0",
+  "description": "The runlog harness: the report skill, reviewer and test-writer agents, test-gating hooks, the review-runlog workflow and the fetch MCP server.",
+  "author": { "name": "goku" }
+}

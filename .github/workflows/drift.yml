@@ -1,0 +1,30 @@
+name: Drift check
+
+# Every Monday: install the newest Claude Code and Codex, and run what a machine can run
+# at every lesson tag. No step calls a model or needs a secret.
+#
+# GitHub turns a schedule off in a public repository after 60 days without activity.
+# The Monday commit that moves the verified-on versions keeps this one alive.
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0   # every tag and the training-ground branch
+      - uses: astral-sh/setup-uv@v6
+      - name: Install the newest Claude Code and Codex
+        run: |
+          curl -fsSL https://claude.ai/install.sh | bash
+          curl -fsSL https://chatgpt.com/codex/install.sh | sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Run the checks at every tag
+        run: python3 .github/drift_check.py
